@@ -17,7 +17,6 @@ const Tree = function (array) {
 		}
 
 		let mid = Math.floor(sortedArray.length / 2); 
-		//console.log(sortedArray[mid]);
 
 		let rootData = Node();
 
@@ -27,6 +26,7 @@ const Tree = function (array) {
 
 		return rootData;
 	}
+
 	let root = buildTree(array);
 
 	const prettyPrint = (node, prefix = '', isLeft = true) => {
@@ -42,11 +42,53 @@ const Tree = function (array) {
   		}
 	}
 
-	return { root, buildTree, prettyPrint }
-}
+	const compareValue = function (currentNode, value) {
+		if (currentNode.data > value) {
+			return currentNode.left;
+		} else {
+			return currentNode.right;
+		}
+	}
 
-const arr = [2, 3, 1, 6, 8, 4, 3, 5]
-const a = Tree(arr);
-a.buildTree(arr);
-console.log(a.root);
-a.prettyPrint(a.root, "", false);
+	const insert = function (value) {
+		let newNode = Node();
+		newNode.data = value;
+		newNode.left = null;
+		newNode.right = null;
+
+		let currentNode = root;
+		while (true) {
+			if (currentNode.data > value) {
+				if (currentNode.left === null) {
+					currentNode.left = newNode;
+					return;
+				}
+				currentNode = currentNode.left;
+			} else {
+				if (currentNode.right === null) {
+					currentNode.right = newNode;
+					return;
+				}
+				currentNode = currentNode.right;
+			}
+		}
+	}
+
+	const find = function (value) {
+		let currentNode = root;
+
+		while (currentNode != null) {
+			if (currentNode.data === value) {
+				return currentNode;
+			} else if (currentNode.data > value) {
+				currentNode = currentNode.left;
+			} else {
+				currentNode = currentNode.right;
+			}
+		}
+
+		return null;
+	}
+
+	return { root, buildTree, prettyPrint, insert, find }
+}
