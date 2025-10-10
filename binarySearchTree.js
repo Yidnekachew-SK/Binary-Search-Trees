@@ -9,8 +9,9 @@ const Node = function () {
 }
 
 const Tree = function (array) {
+	let root = buildTree(array);
 
-	const buildTree = function (array) {
+	function buildTree (array) {
 		let sortedArray = mergeSortRecursive(array);
 		if (sortedArray.length === 0) {
 			return null;
@@ -27,9 +28,7 @@ const Tree = function (array) {
 		return rootData;
 	}
 
-	let root = buildTree(array);
-
-	const prettyPrint = (node, prefix = '', isLeft = true) => {
+	function prettyPrint (node, prefix = '', isLeft = true) {
   		if (node === null) {
    			return;
   		}
@@ -42,15 +41,7 @@ const Tree = function (array) {
   		}
 	}
 
-	const compareValue = function (currentNode, value) {
-		if (currentNode.data > value) {
-			return currentNode.left;
-		} else {
-			return currentNode.right;
-		}
-	}
-
-	const insert = function (value) {
+	function insert (value) {
 		let newNode = Node();
 		newNode.data = value;
 		newNode.left = null;
@@ -74,7 +65,39 @@ const Tree = function (array) {
 		}
 	}
 
-	const find = function (value) {
+	function deleteItem (node, value) {
+		if (node === null) { return null};
+
+		if (node.data > value) {
+			node.left = deleteItem(node.left, value);
+		} else if (node.data < value) {
+			node.right = deleteItem(node.right, value);
+		} else {
+			if (node.left === null && node.right === null) {
+				return null;
+			} else if (node.left === null) {
+				return node.right;
+			} else if (node.right === null) {
+				return node.left;
+			} else {
+				let replacerNode = findMinimumNode(node.right);
+				node.data = replacerNode.data;
+				node.right = deleteItem(node.right, replacerNode);
+			}
+		}
+
+		return node;
+	}
+
+	function findMinimumNode (root) {
+		while (root.left != null) {
+			root = root.left;
+		}
+
+		return root;
+	}
+
+	function find (value) {
 		let currentNode = root;
 
 		while (currentNode != null) {
@@ -90,5 +113,35 @@ const Tree = function (array) {
 		return null;
 	}
 
-	return { root, buildTree, prettyPrint, insert, find }
+	function levelOrderForEach (callback) {
+		if (callback === null) { throw new Error("Callback is required!") }
+		if (root === null) { return }
+
+		let queue = [root];
+		while (queue.length > 0) {
+			let node = queue.shift();
+			callback(node);
+
+			if (node.left != null) { queue.push(node.left) }
+			if (node.right != null) { queue.push(node.right) }
+		}
+	}
+
+	function inOrderForEach (callback) {
+		if (callback === null) { throw new Error("Callback is required!") }
+		if (root === null) { return }
+
+		let currentNode = root;
+
+		function inorderTraverse(node) {
+        	if (node === null) return;
+        	inorderTraverse(node.left);
+        	callback(node);
+        	inorderTraverse(node.right);
+    	}
+
+    	inorderTraverse(currentNode);
+	}
+
+	return { root, prettyPrint, insert, deleteItem, find, levelOrderForEach, inOrderForEach }
 }
