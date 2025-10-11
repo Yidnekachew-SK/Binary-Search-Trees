@@ -11,6 +11,14 @@ const Node = function () {
 const Tree = function (array) {
 	let root = buildTree(array);
 
+	function setRoot (rootNode) {
+		root = rootNode;
+	}
+
+	function getRoot () {
+		return root;
+	}
+
 	function buildTree (array) {
 		let sortedArray = mergeSortRecursive(array);
 		if (sortedArray.length === 0) {
@@ -66,7 +74,7 @@ const Tree = function (array) {
 	}
 
 	function deleteItem (node, value) {
-		if (node === null) { return null};
+		if (node === null) return null;
 
 		if (node.data > value) {
 			node.left = deleteItem(node.left, value);
@@ -115,7 +123,7 @@ const Tree = function (array) {
 
 	function levelOrderForEach (callback) {
 		if (callback === null) { throw new Error("Callback is required!") }
-		if (root === null) { return }
+		if (root === null) return;
 
 		let queue = [root];
 		while (queue.length > 0) {
@@ -129,19 +137,108 @@ const Tree = function (array) {
 
 	function inOrderForEach (callback) {
 		if (callback === null) { throw new Error("Callback is required!") }
-		if (root === null) { return }
+		if (root === null) return;
 
-		let currentNode = root;
-
-		function inorderTraverse(node) {
+		function inOrderTraverse(node) {
         	if (node === null) return;
-        	inorderTraverse(node.left);
+        	inOrderTraverse(node.left);
         	callback(node);
-        	inorderTraverse(node.right);
+        	inOrderTraverse(node.right);
     	}
 
-    	inorderTraverse(currentNode);
+    	inOrderTraverse(root);
 	}
 
-	return { root, prettyPrint, insert, deleteItem, find, levelOrderForEach, inOrderForEach }
+	function preOrderForEach (callback) {
+		if (callback === null) { throw new Error("Callback is required!") }
+		if (root === null) return;
+
+		function preOrderTraverse(node) {
+        	if (node === null) return;
+        	callback(node);
+        	preOrderTraverse(node.left);
+        	preOrderTraverse(node.right);
+    	}
+
+    	preOrderTraverse(root);
+	}
+
+	function postOrderForEach (callback) {
+		if (callback === null) { throw new Error("Callback is required!") }
+		if (root === null) return;
+
+		function postOrderTraverse(node) {
+        	if (node === null) return;
+        	postOrderTraverse(node.left);
+        	postOrderTraverse(node.right);
+        	callback(node);
+    	}
+
+    	postOrderTraverse(root);
+	}
+
+	function height (value) {
+		if (find(value) === null) return null;
+		let currentNode = find(value);
+
+		function heightOfNode (node) {
+			if (node === null) return -1;
+			let leftHeight = heightOfNode(node.left);
+			let rightHeight = heightOfNode(node.right);
+
+			return (1 + Math.max(leftHeight, rightHeight));
+		}
+
+		return heightOfNode(currentNode);
+	}
+
+	function depth (value) {
+		let currentNode = root;
+		let count = 0;
+
+		while (currentNode != null) {
+			if (currentNode.data === value) {
+				return count;
+			} else if (currentNode.data > value) {
+				currentNode = currentNode.left;
+			} else {
+				currentNode = currentNode.right;
+			}
+
+			count++;
+		}
+
+		return null;
+	}
+
+	function isBalanced () {
+		function checkBalance (node) {
+			if (node === null) { return 0 }
+
+			let leftSide = checkBalance(node.left);
+			if (leftSide === -1) return -1;
+
+			let rightSide = checkBalance(node.right);
+			if (rightSide === -1) return -1;
+
+			if (Math.abs(leftSide - rightSide) > 1) return -1;
+
+			return 1 + Math.max(leftSide, rightSide);
+		}
+
+		return checkBalance(root) != -1;
+	}
+
+	function reBalance () {
+		let nodeData = [];
+		preOrderForEach((node) => {
+			nodeData.push(node.data);
+		})
+		setRoot(buildTree(nodeData));
+	}
+
+	return { setRoot, getRoot, prettyPrint, insert, deleteItem, find, levelOrderForEach, inOrderForEach,
+			preOrderForEach, postOrderForEach, height, depth, isBalanced, reBalance }
 }
+
+export { Tree };
